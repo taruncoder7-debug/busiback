@@ -20,7 +20,11 @@ function authMiddleware(req, res, next) {
 function requireRole(roles) {
   return (req, res, next) => {
     if (!req.user) return res.status(401).json({ message: 'Not authenticated' });
-    if (!roles.includes(req.user.role)) return res.status(403).json({ message: 'Forbidden' });
+    const normalizedUserRole = String(req.user.role || '').toLowerCase();
+    const normalizedAllowedRoles = roles.map((role) => String(role).toLowerCase());
+    if (!normalizedAllowedRoles.includes(normalizedUserRole)) {
+      return res.status(403).json({ message: 'Forbidden' });
+    }
     next();
   };
 }

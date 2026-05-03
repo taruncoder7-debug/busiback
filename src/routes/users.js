@@ -46,7 +46,7 @@ router.post('/', authMiddleware, requireRole(['admin']), async (req, res) => {
 // Update user (admin or self)
 router.put('/:id', authMiddleware, async (req, res) => {
   try {
-    const isAdmin = req.user.role === 'admin';
+    const isAdmin = String(req.user.role || '').toLowerCase() === 'admin';
     const isSelf = req.user.id === req.params.id;
     if (!isAdmin && !isSelf) return res.status(403).json({ message: 'Forbidden' });
     
