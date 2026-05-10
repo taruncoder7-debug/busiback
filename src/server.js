@@ -9,14 +9,39 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server, { cors: { origin: '*', methods: ['GET', 'POST'] } });
+mongoose.set('bufferCommands', false);
 
 // Middleware
 app.use(cors());
 app.use(express.json());
 
+function isDatabaseConnected() {
+  return mongoose.connection.readyState === 1;
+}
+
+app.get('/api/health', (req, res) => {
+  res.json({
+    ok: true,
+    database: isDatabaseConnected() ? 'connected' : 'disconnected'
+  });
+});
+
+app.use('/api', (req, res, next) => {
+  if (!isDatabaseConnected()) {
+    return res.status(503).json({
+      message: 'Database is not connected. Check MONGO_URI in the backend environment.'
+    });
+  }
+  next();
+});
+
 // MongoDB Connection
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/company_db';
-mongoose.connect(MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/company_db';
+mongoose.connect(MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  serverSelectionTimeoutMS: 10000
+})
   .then(() => console.log('✓ MongoDB connected'))
   .catch(err => console.error('✗ MongoDB connection error:', err));
 

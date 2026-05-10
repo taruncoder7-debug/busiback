@@ -27,7 +27,7 @@ router.post('/login', async (req, res) => {
       } 
     });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    res.status(500).json({ message: 'Login failed on the server', error: err.message });
   }
 });
 

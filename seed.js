@@ -12,7 +12,7 @@ const Invoice = require('./src/models/Invoice');
 const Notification = require('./src/models/Notification');
 const Message = require('./src/models/Message');
 
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/company_db';
+const MONGO_URI = process.env.MONGO_URI || process.env.MONGODB_URI || 'mongodb://localhost:27017/company_db';
 
 async function seedDB() {
   try {
